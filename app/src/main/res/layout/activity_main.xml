@@ -1,17 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
+    android:orientation="vertical"
+    android:background="@android:color/white"
     tools:context="com.example.takondwakakusa.androidbackgroundcomm.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
-</RelativeLayout>
+        android:src="@drawable/logo" />
+
+    <TextView
+        android:id="@+id/channel_intro"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="16dp"
+        android:layout_marginTop="5dp"
+        android:textAlignment="center"
+        android:text="ECE 2504: Intro to CPE"
+        android:textStyle="bold"
+        android:textSize="22sp"
+        android:background="@drawable/border"
+        android:onClick="click_intro"
+        android:clickable="true"/>
+
+    <TextView
+        android:id="@+id/channel_circuit"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="16dp"
+        android:layout_marginTop="20dp"
+        android:textAlignment="center"
+        android:text="ECE 2004: Circuit Analysis"
+        android:textStyle="bold"
+        android:textSize="22sp"
+        android:background="@drawable/border"
+        android:onClick="click_circuit"
+        android:clickable="true"/>
+
+    <TextView
+        android:id="@+id/channel_micro"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="16dp"
+        android:layout_marginTop="20dp"
+        android:textAlignment="center"
+        android:text="ECE 2534: Microcontroller"
+        android:textStyle="bold"
+        android:textSize="22sp"
+        android:background="@drawable/border"
+        android:onClick="click_micro"
+        android:clickable="true"/>
+
+    <TextView
+        android:id="@+id/channel_dd1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="16dp"
+        android:layout_marginTop="20dp"
+        android:textAlignment="center"
+        android:text="ECE 3544: Digital Design I"
+        android:textStyle="bold"
+        android:textSize="22sp"
+        android:background="@drawable/border"
+        android:onClick="click_dd1"
+        android:clickable="true"/>
+
+    <TextView
+        android:id="@+id/channel_embedded"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="16dp"
+        android:layout_marginTop="20dp"
+        android:textAlignment="center"
+        android:text="ECE 4534: Embedded System"
+        android:textStyle="bold"
+        android:textSize="22sp"
+        android:background="@drawable/border"
+        android:onClick="click_embedded"
+        android:clickable="true"/>
+
+
+</LinearLayout>
+
