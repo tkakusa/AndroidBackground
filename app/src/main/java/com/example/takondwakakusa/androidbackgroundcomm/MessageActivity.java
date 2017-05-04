@@ -47,6 +47,14 @@ public class MessageActivity extends AppCompatActivity {
         addRefreshButton();
         addLoadButton();
         addSendButton();
+
+        serverRestClientUsage.getMostRecent(textView.getText().toString(), new ServerRestClientUsage.Callback<String>() {
+            @Override
+            public void onResponse(String s) throws JSONException {
+                updateListView(s);
+                Toast.makeText(getApplicationContext(), "Refreshed", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public void addRefreshButton() {
@@ -59,7 +67,7 @@ public class MessageActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String s) throws JSONException {
                         updateListView(s);
-                        Toast.makeText(getApplicationContext(), "Refreshed", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Refreshed", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -76,7 +84,7 @@ public class MessageActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String s) throws JSONException {
                         updateListView(s);
-                        Toast.makeText(getApplicationContext(), "Loaded More Messages", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Loaded More Messages", Toast.LENGTH_SHORT).show();
                     }
                 });
             }

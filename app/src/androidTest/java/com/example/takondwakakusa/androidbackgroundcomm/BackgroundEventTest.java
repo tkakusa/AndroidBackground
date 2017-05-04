@@ -1,12 +1,23 @@
 package com.example.takondwakakusa.androidbackgroundcomm;
 
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
+
+import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.UnsupportedEncodingException;
+
+import cz.msebera.android.httpclient.Header;
+
+import static java.lang.Double.isNaN;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -16,7 +27,7 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(AndroidJUnit4.class)
 public class BackgroundEventTest {
-    /*
+
     private ServerRestClientUsage mRestfulCalls;
     JSONArray channels;
     JSONObject channel;
@@ -29,119 +40,124 @@ public class BackgroundEventTest {
     }
     @Test
     public void useAppContext() throws Exception {
+        ServerRestClientUsage serverRestClientUsage;
+        serverRestClientUsage = new ServerRestClientUsage();
         String jsonresponse;
         JSONObject jsonObject;
         String channelName = "New Channel";
         String longChannelName = "This channel name is way too long and should not pass the test";
         String messageContent = "New Message";
         String longMessage = "This message is way too long and should not be added because of the sheer length of space it takes up";
-        /***Test the creation of a new channel***/
-    /*
-        jsonresponse = mRestfulCalls.createChannel(channelName);
-        jsonObject = (JSONObject) new JSONObject(jsonresponse);
+        int messageLength;
+        /***Test the channel manipulation***/
+        //Test getting channels
+        serverRestClientUsage.getChannelsTest(new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                try {
+                    JSONArray jsonArray = new JSONArray(new String(responseBody, "UTF-8"));
+                    assertThat(jsonArray.length(), is(6));
+                    Log.d("GetChannel", "Test Passed");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
 
-        //Check that the channel was accepted
-        assertThat((int)jsonObject.get("code"), is(200));
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
 
-        //Add a channel name that is too long
-        jsonresponse = mRestfulCalls.createChannel(longChannelName);
-        jsonObject = (JSONObject) new JSONObject(jsonresponse);
+            }
 
-        //Check that the channel was denied
-        assertThat((int)jsonObject.get("code"), is(400));
+        });
 
-        //Add a channel name that already exists
-        jsonresponse = mRestfulCalls.createChannel(channelName);
-        jsonObject = (JSONObject) new JSONObject(jsonresponse);
+        serverRestClientUsage.getChannels(new ServerRestClientUsage.Callback<String>() {
+            @Override
+            public void onResponse(String s) throws JSONException {
+                try {
+                    Log.d("StringReceived", "String Received: " + s);
+                    JSONArray jsonArray = new JSONArray(s);
+                    assertThat(jsonArray.length(), is(6));
+                    Log.d("GetChannel", "Test Passed");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
-        //Check that the channel was denied
-        assertThat((int)jsonObject.get("code"), is(409));
+        //Test getting channel by name
+        serverRestClientUsage.getChannelbyName("TEST CHANNEL", new ServerRestClientUsage.Callback<String>() {
+            @Override
+            public void onResponse(String s) throws JSONException {
+                Log.d("StringReceived", "String Received: " + s);
+                JSONObject jsonObject = new JSONObject(s);
+                assertThat(jsonObject.getString("name"), is("TEST CHANNEL"));
+            }
+        });
 
+        //Test getting posts
+        serverRestClientUsage.getMostRecent("TEST CHANNEL", new ServerRestClientUsage.Callback<String>() {
+            @Override
+            public void onResponse(String s) throws JSONException {
+                JSONArray jsonArray = new JSONArray(s);
+                assertThat(jsonArray.length(), is(0));
+            }
+        });
 
-        /***Test Getting the channel back***/
-    /*
-        jsonresponse = mRestfulCalls.getChannels();
-        jsonObject = (JSONObject) new JSONObject(jsonresponse);
-        channels = jsonObject.getJSONArray("channels");
+        //Test posting message
+        serverRestClientUsage.postMessagebyName(null, "TEST CHANNEL", "Test Message", new ServerRestClientUsage.Callback<String>() {
+            @Override
+            public void onResponse(String s) throws JSONException {
+                Log.d("Integer", "Integer Obtained: " + s);
+                //assertThat(Integer.getInteger(s), is(true));
+            }
+        });
 
-        //Make sure the length of the list is correct
-        assertThat(channels.length(), is(1));
+        //Test making sure a post was sent
+        serverRestClientUsage.getMostRecent("TEST CHANNEL", new ServerRestClientUsage.Callback<String>() {
+            @Override
+            public void onResponse(String s) throws JSONException {
+                JSONArray jsonArray = new JSONArray(s);
+                assertThat(jsonArray.length(), is(1));
+            }
+        });
 
-        //Make sure the response type and name are correct
-        channel = (JSONObject) channels.get(0);
-        assertThat((int)jsonObject.get("code"), is(200));
-        assertThat(channel.getString("name"), is(channelName));
+        //Post 14 more messages
+        for (int i = 0; i < 14; i++) {
+            serverRestClientUsage.postMessagebyName(null, "TEST CHANNEL", "Test Message", new ServerRestClientUsage.Callback<String>() {
+                @Override
+                public void onResponse(String s) throws JSONException {
 
-        /***Test Sending a new message***/
-    /*
-        //Send a single message
-        jsonresponse = mRestfulCalls.sendMessage(channelName, messageContent);
-        jsonObject = (JSONObject) new JSONObject(jsonresponse);
-
-        //Make sure response type is correct
-        assertThat((int)jsonObject.get("code"), is(200));
-
-        //Send a long message
-        jsonresponse = mRestfulCalls.sendMessage(channelName, longMessage);
-        jsonObject = (JSONObject) new JSONObject(jsonresponse);
-
-        //Make sure response type is correct
-        assertThat((int)jsonObject.get("code"), is(400));
-
-        /***Test Getting a the most recent messages***/
-    /*
-        //Post four more messages
-        mRestfulCalls.sendMessage(channelName, messageContent + "1");
-        mRestfulCalls.sendMessage(channelName, messageContent + "2");
-        mRestfulCalls.sendMessage(channelName, messageContent + "3");
-        mRestfulCalls.sendMessage(channelName, messageContent + "4");
-
-        //Get the most recent messages
-        jsonresponse = mRestfulCalls.getMostRecent(channelName);
-        jsonObject = (JSONObject) new JSONObject(jsonresponse);
-        messages = jsonObject.getJSONArray("messages");
-
-        //check the length of the message array
-        assertThat(messages.length(), is(5));
-
-        //Check that each message is in order
-        for (int i = 0; i < 4; i++) {
-            message = (JSONObject) messages.get(i);
-            assertThat(message.getString("body"), is(messageContent + Integer.toString(4-i)));
-            assertThat(message.getString("id"), is(Integer.toString(4-i)));
+                }
+            });
         }
 
-        //add six more message
-        mRestfulCalls.sendMessage(channelName, messageContent + "5");
-        mRestfulCalls.sendMessage(channelName, messageContent + "6");
-        mRestfulCalls.sendMessage(channelName, messageContent + "7");
-        mRestfulCalls.sendMessage(channelName, messageContent + "8");
-        mRestfulCalls.sendMessage(channelName, messageContent + "9");
-        mRestfulCalls.sendMessage(channelName, messageContent + "0");
+        //Test that only 10 messages are received
+        serverRestClientUsage.getMostRecent("TEST CHANNEL", new ServerRestClientUsage.Callback<String>() {
+            @Override
+            public void onResponse(String s) throws JSONException {
+                JSONArray jsonArray = new JSONArray(s);
+                assertThat(jsonArray.length(), is(10));
+            }
+        });
 
-        //make sure only the most recent 10 are obtained
-        jsonresponse = mRestfulCalls.getMostRecent(channelName);
-        jsonObject = (JSONObject) new JSONObject(jsonresponse);
-        messages = jsonObject.getJSONArray("messages");
+        //Test that only 15 messages are loaded when asking for 20
+        serverRestClientUsage.loadMore("TEST CHANNEL", 20, new ServerRestClientUsage.Callback<String>() {
+            @Override
+            public void onResponse(String s) throws JSONException {
+                JSONArray jsonArray = new JSONArray(s);
+                assertThat(jsonArray.length(), is(16));
+            }
+        });
 
-        //check the length of the message array
-        assertThat(messages.length(), is(10));
 
-        /***Test loading previous messages***/
-    /*
-        jsonresponse = mRestfulCalls.loadMore(channelName, 11);
-        jsonObject = (JSONObject) new JSONObject(jsonresponse);
-        messages = jsonObject.getJSONArray("messages");
+        //Delete all of the posts
+        serverRestClientUsage.deleteMessages("TEST CHANNEL", new ServerRestClientUsage.Callback<String>() {
+            @Override
+            public void onResponse(String s) throws JSONException {
 
-        //check the length of the message array
-        assertThat(messages.length(), is(10));
-
-        for (int i = 0; i < 9; i++) {
-            message = (JSONObject) messages.get(i);
-            assertThat(message.getString("body"), is(messageContent + Integer.toString(9-i)));
-            assertThat(message.getString("id"), is(Integer.toString(10-i)));
-        }
-
+            }
+        });
     }
-*/
 }

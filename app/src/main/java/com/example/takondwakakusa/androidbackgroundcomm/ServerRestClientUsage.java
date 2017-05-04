@@ -95,6 +95,35 @@ public class ServerRestClientUsage {
 
     }
 
+    public void getChannelsTest(final AsyncHttpResponseHandler asyncHttpResponseHandler) {
+
+        final String[] output = {new String()};
+        String url = "channels";
+        RestfulCalls restfulCalls = new RestfulCalls();
+        HttpResponse response = null;
+
+        RestfulCalls.get(url, null, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                // If the response is JSONObject instead of expected JSONArray
+                if (asyncHttpResponseHandler != null) {
+                    asyncHttpResponseHandler.onSuccess(statusCode, headers, response.toString().getBytes());
+                }
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray timeline) {
+                // Pull out the first event on the public timeline
+                if (asyncHttpResponseHandler != null) {
+                    asyncHttpResponseHandler.onSuccess(statusCode, headers, timeline.toString().getBytes());
+                }
+
+            }
+
+        });
+
+    }
+
 
     public void getChannel(int cid, final Callback<String> callback) {
         String url = "channels/" + Integer.toString(cid);
@@ -295,19 +324,17 @@ public class ServerRestClientUsage {
                         @Override
                         public void onResponse(String s) {
                             JSONObject jsonObject = null;
+                            JSONObject jsonObject1 = new JSONObject();
                             try {
                                 jsonObject = new JSONObject(s);
                                 String name = jsonObject.getString("name");
                                 if ( name.equals( channelName )) {
                                     String cid = jsonObject.getString("id");
                                     String posturl = "channels/" + cid + "/posts";
-                                    jsonObject.put("text", message);
+                                    jsonObject1.put("text", message);
 
-                                    StringEntity entity = new StringEntity(jsonObject.toString());
+                                    StringEntity entity = new StringEntity(jsonObject1.toString());
                                     entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE,"application/json"));
-
-                                    RequestParams rp = new RequestParams();
-                                    rp.add("desc", message);
 
                                     RestfulCalls.post(context, posturl, entity, new AsyncHttpResponseHandler() {
                                         @Override
@@ -336,6 +363,51 @@ public class ServerRestClientUsage {
                             }
                         }
                     });
+                }
+            }
+        });
+    }
+
+    public void deleteMessages(String channelName, final Callback<String> callback) {
+        getChannelbyName(channelName, new Callback<String>() {
+            @Override
+            public void onResponse(String s) throws JSONException {
+                try {
+                    JSONObject jsonObject = new JSONObject(s);
+                    String cid = jsonObject.getString("id");
+                    JSONArray jsonArray = jsonObject.getJSONArray("posts");
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject2 = jsonArray.getJSONObject(i);
+                        String id = jsonObject2.getString("id");
+                        String url = "channels/" + cid + "/posts/" + id;
+                        RestfulCalls.delete(url, null, new JsonHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                // If the response is JSONObject instead of expected JSONArray
+
+                            }
+
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, JSONArray timeline) {
+                                // Pull out the first event on the public timeline
+
+                            }
+                        });
+                        if (callback != null) {
+                            try {
+                                callback.onResponse(s.toString());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    try {
+                        callback.onResponse(s);
+                    } catch (JSONException e2) {
+                        e2.printStackTrace();
+                    }
                 }
             }
         });

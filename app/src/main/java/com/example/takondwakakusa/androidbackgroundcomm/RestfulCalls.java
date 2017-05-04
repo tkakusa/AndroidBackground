@@ -15,8 +15,8 @@ public class RestfulCalls {
 
     private static final String BASE_URL = "http://ec2-34-209-243-205.us-west-2.compute.amazonaws.com:8080/";
 
+    //private static SyncHttpClient client = new SyncHttpClient();
     private static AsyncHttpClient client = new AsyncHttpClient();
-
 
     public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.get(getAbsoluteUrl(url), params, responseHandler);
