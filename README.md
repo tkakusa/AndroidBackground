@@ -1,4 +1,4 @@
-This repository stores the location of the testing functionality for the background tasks of the android application. The file that contains all of the tests is called "BackgroundEventTest" and it is located in:
+This repository stores the location of the testing functionality for the background tasks of the android application. The videos for the testing are located in the team final project repository. The file that contains all of the tests is called "BackgroundEventTest" and it is located in:
 
   ./app/src/androidTest/java/com/example/takondwakakusa/androidbackgroundcomm
   
